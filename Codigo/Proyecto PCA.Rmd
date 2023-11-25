@@ -1,0 +1,214 @@
+---
+title: "PCA"
+author:
+- Victoria González González | A01737594
+- Johanna Camila Willis Ruiz | A01741070
+date: "24 de Noviembre de 2023"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+####Subimos la base de datos####
+Portefeuilles <- read.csv("C:\\Users\\vicky\\Downloads\\darwin\\data.csv")
+
+
+##Para visualizar los datos##
+head(Portefeuilles)
+```
+
+
+```{r}
+##Eliminamos la primera columna
+Portefeuilles = Portefeuilles[,-1]
+```
+
+
+```{r}
+Portefeuilles$class <- as.character(Portefeuilles$class)
+Portefeuilles$class <- gsub("P", "1", Portefeuilles$class)
+Portefeuilles$class <- as.character(Portefeuilles$class)
+Portefeuilles$class <- gsub("H", "0", Portefeuilles$class)
+```
+
+
+
+
+```{r}
+##EStandarizamos la base de datos
+str(Portefeuilles)
+
+numeric_cols <- sapply(Portefeuilles, is.numeric)
+
+Portefeuilles[, numeric_cols] <- lapply(Portefeuilles[, numeric_cols], function(x) {
+  ifelse(is.na(x), mean(x, na.rm = TRUE), x)})
+Portefeuilles[, numeric_cols] <- scale(Portefeuilles[, numeric_cols])
+```
+
+
+```{r}
+##No es un dataframe
+Portefeuilles
+```
+
+
+```{r}
+##Lo cambiamos a un dataframe
+Portefeuilles = data.frame(Portefeuilles)
+```
+
+
+```{r}
+##Mostramos la tranformación de escala
+head (Portefeuilles)
+```
+
+```{r}
+##Visualizamos los datos
+library(ggplot2)
+
+# Create histograms
+hist1 <- ggplot(Portefeuilles, aes(x = air_time1)) +
+  geom_histogram(fill = "orange", color = "white") +
+  labs(title = "Histogram of air_time1",
+       x = "Air Time") +
+  theme_minimal()
+
+# Save the plot
+ggsave("hist1.png", hist1, dpi = 800)
+
+# Create histograms
+hist2 <- ggplot(Portefeuilles, aes(x = disp_index1)) +
+  geom_histogram(fill = "blue", color = "white") +
+  labs(title = "Histogram of disp_index1",
+       x = "disp_index") +
+  theme_minimal()
+
+# Save the plot
+ggsave("hist2.png", hist2, dpi = 800)
+
+# Create histograms
+hist3 <- ggplot(Portefeuilles, aes(x = gmrt_in_air1)) +
+  geom_histogram(fill = "green", color = "white") +
+  labs(title = "Histogram of gmrt_in_air1",
+       x = "gmrt_in_air1") +
+  theme_minimal()
+
+# Save the plot
+ggsave("hist3.png", hist3, dpi = 800)
+
+# Create histograms
+hist4 <- ggplot(Portefeuilles, aes(x = gmrt_on_paper1)) +
+  geom_histogram(fill = "red", color = "white") +
+  labs(title = "Histogram of gmrt_on_paper1",
+       x = "gmrt_on_paper1") +
+  theme_minimal()
+
+# Save the plot
+ggsave("hist4.png", hist4, dpi = 800)
+
+
+hist( Portefeuilles$air_time1)
+hist( Portefeuilles$disp_index1)
+hist( Portefeuilles$gmrt_in_air1)
+hist( Portefeuilles$gmrt_on_paper1)
+hist( Portefeuilles$max_x_extension1)
+hist( Portefeuilles$max_y_extension1)
+
+
+```
+
+
+
+```{r}
+##Correlación de los datos
+cor(numeric_data)
+```
+
+
+```{r}
+##Nos va a mostrar si es que existe algun valo ausente, lo cual no tenemos
+which(is.na(numeric_data))
+```
+```{r}
+##Normalización: estandarizamos  
+scaladatos= scale(numeric_data)
+```
+
+```{r}
+#prcomp nos arroja los datos más precisos, nos retorna la desviación estandar de cada uno de los componentes que pertenecen a los eigenvalores sacando la raíz, así como el conjunto de componentes principales o de nuesvas variables generadas a partir de la tranformación ortogonal y la multiplicación los datos originales por los nuevos componentes principales
+acp=prcomp(scaladatos)
+acp
+```
+
+```{r}
+#Proporción de varianza explicada y a partir de ello decidir con cuantas variables nos quedamos para el análisis
+summary(acp)
+```
+
+
+Nos basamos en el criterio de kessel
+Sabiendo que la tranformación ortogonal se ha realizado a la matriz de correlación la varianza de cada una de las variables originales deben de ser 1 por tanto la varianza de las componentes principales no debe de ser menor a 1 porque si no, no explicaria la suficiente variabilidad original
+
+
+
+```{r}
+desv_stand=acp[[1]]
+desv_stand
+```
+
+```{r}
+varianza = desv_stand^2
+varianza
+```
+
+
+Vamos a tomar los primeros 90 componentes ya que presentan una varianza mayor a 1 las cuales son los componentes principales
+
+
+```{r}
+##Es para el análisis geométrico de datos
+library(FactoMineR)
+```
+
+
+
+
+```{r}
+numeric_cols <- sapply(Portefeuilles, is.numeric)
+numeric_data <- Portefeuilles[, numeric_cols]
+res.pca <- PCA(numeric_data, ncp = 90, graph = TRUE)
+
+```
+
+```{r}
+res.pca
+```
+
+```{r}
+res.pca$eig
+```
+
+
+```{r}
+res.pca$var
+```
+
+```{r}
+res.pca$svd
+```
+
+```{r}
+mypca = res.pca$svd$U
+mypca
+```
+
+
+
+
+
